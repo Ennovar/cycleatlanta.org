@@ -5,7 +5,7 @@
  * A library with support for reading and
  * writing all Exif headers in JPEG and TIFF images using PHP.
  *
- * Copyright (C) 2004, 2005 Martin Geisler.
+ * Copyright (C) 2004, 2005, 2006, 2007 Martin Geisler.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,44 +25,19 @@
 namespace lsolesen\pel;
 
 /**
- * Standard PEL exception.
+ * A container for bytes with a limited window of accessible bytes.
  *
  * @author Martin Geisler <mgeisler@users.sourceforge.net>
- * @license http://www.gnu.org/licenses/gpl.html GNU General Public
- *          License (GPL)
+ * @license http://www.gnu.org/licenses/gpl.html GNU General Public License (GPL)
  * @package PEL
  */
 
 /**
- * A printf() capable exception.
- *
- * This class is a simple extension of the standard Exception class in
- * PHP, and all the methods defined there retain their original
- * meaning.
+ * An exception thrown when an invalid window is encountered.
  *
  * @package PEL
  * @subpackage Exception
  */
-class PelException extends \Exception
+class PelDataWindowWindowException extends PelException
 {
-
-    /**
-     * Construct a new PEL exception.
-     *
-     * @param string $fmt
-     *            an optional format string can be given. It
-     *            will be used as a format string for vprintf(). The remaining
-     *            arguments will be available for the format string as usual with
-     *            vprintf().
-     *
-     * @param mixed $args,...
-     *            any number of arguments to be used with
-     *            the format string.
-     */
-    public function __construct()
-    {
-        $args = func_get_args();
-        $fmt = array_shift($args);
-        parent::__construct(vsprintf($fmt, $args));
-    }
 }

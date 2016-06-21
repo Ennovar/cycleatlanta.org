@@ -37,7 +37,7 @@ namespace lsolesen\pel;
  */
 
 /**
- * Class for holding unsigned bytes.
+ * Class for holding signed bytes.
  *
  * This class can hold bytes, either just a single byte or an array of
  * bytes. The class will be used to manipulate any of the Exif tags
@@ -46,15 +46,15 @@ namespace lsolesen\pel;
  * @author Martin Geisler <mgeisler@users.sourceforge.net>
  * @package PEL
  */
-class PelEntryByte extends PelEntryNumber
+class PelEntrySByte extends PelEntryNumber
 {
 
     /**
-     * Make a new entry that can hold an unsigned byte.
+     * Make a new entry that can hold a signed byte.
      *
-     * The method accept several integer arguments. The {@link
-     * getValue} method will always return an array except for when a
-     * single integer argument is given here.
+     * The method accept several integer arguments. The {@link getValue}
+     * method will always return an array except for when a single
+     * integer argument is given here.
      *
      * @param PelTag $tag
      *            the tag which this entry represents. This
@@ -64,16 +64,16 @@ class PelEntryByte extends PelEntryNumber
      * @param int $value...
      *            the byte(s) that this entry will represent.
      *            The argument passed must obey the same rules as the argument to
-     *            {@link setValue}, namely that it should be within range of an
-     *            unsigned byte, that is between 0 and 255 (inclusive). If not,
+     *            {@link setValue}, namely that it should be within range of a
+     *            signed byte, that is between -128 and 127 (inclusive). If not,
      *            then a {@link PelOverflowException} will be thrown.
      */
     public function __construct($tag, $value = null)
     {
         $this->tag = $tag;
-        $this->min = 0;
-        $this->max = 255;
-        $this->format = PelFormat::BYTE;
+        $this->min = - 128;
+        $this->max = 127;
+        $this->format = PelFormat::SBYTE;
 
         $value = func_get_args();
         array_shift($value);

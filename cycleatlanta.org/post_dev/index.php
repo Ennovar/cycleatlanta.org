@@ -16,22 +16,6 @@ define( 'PROTOCOL_VERSION_4', 4 ); // this is for uploading the note data (compr
 Util::log( " ");
 Util::log( "+++++++++++++ Development: Upload Start +++++++++++++");
 
-/*
-Util::log ( "++++ HTTP Headers ++++" );
-$headers = array();
-foreach($_SERVER as $key => $value) {
-    if (substr($key, 0, 5) <> 'HTTP_') {
-        continue;
-    }
-    $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
-    
-    Util::log ( "{$header}: {$value}" );
-    //$headers[$header] = $value;
-}
-
-Util::log ( "++++++++++++++++++++++" );   
-*/
-
 // take protocol from HTTP header if present; otherwise URL query var or POST body
 if (isset($_SERVER['HTTP_CYCLEATL_PROTOCOL_VERSION'])) {
   $version = intval($_SERVER['HTTP_CYCLEATL_PROTOCOL_VERSION']);
@@ -57,7 +41,9 @@ if ( $version == PROTOCOL_VERSION_1 || $version == PROTOCOL_VERSION_2 || $versio
 elseif ( $version == PROTOCOL_VERSION_3) {
   if ($_SERVER['HTTP_CONTENT_ENCODING'] == 'gzip' ||
       $_SERVER['HTTP_CONTENT_ENCODING'] == 'zlib') {
-    $body = decompress_zlib($HTTP_RAW_POST_DATA);
+	
+	$post = file_get_contents('php://input');
+    $body = decompress_zlib($post);
   } else {
     $body = $HTTP_RAW_POST_DATA;
   }
@@ -74,26 +60,11 @@ elseif ( $version == PROTOCOL_VERSION_4 ) {
   $note   		= isset( $_POST['note'] )  			? $_POST['note']  			: null;
   $device   	= isset( $_POST['device'] )  		? $_POST['device']  		: null;
   $imageData 	= isset( $_FILES['file']['tmp_name'] ) ? $_FILES['file']['tmp_name'] 	: null;
-
 }
 
-// validate device ID: should be 32 but some android devices are reporting 31
-// TODO: This will need to change once iOS7 device ID bug is fixed and released
-if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 31)
+// validate device ID
+if ( is_string( $device ) && strlen( $device ) === 32 )
 {
-	// HOT FIX: check if the deviceID is the problematic one from iOS7, if so, append the email address if it exists, if no email, append random hash (creating a new user).
-	$userData = (object) json_decode( $userData );
-	if ( $device == "0f607264fc6318a92b9e13c65db7cd3c" ){
-		Util::log( "ALERT: iOS7 generic device id!");
-		if ($userData->email) {
-			$device .= trim($userData->email);
-			Util::log ( "New deviceID: {$device}" );
-		}
-		if ($userData->app_version == NULL) {
-			$userData->app_version = "1.0 on iOS 7";
-		}  			
-	}
-	
 	// try to lookup user by this device ID
 	$user = null;
 	if ( $user = UserFactory::getUserByDevice( $device ) )
@@ -162,7 +133,8 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 		// add a trip
 		else { 		
 			// check for userData and update if needed
-			if ( $userObj  = new User( $userData ) )
+			if ( ( $userData = (object) json_decode( $userData ) ) &&
+				 ( $userObj  = new User( $userData ) ) )
 			{
 				// update user record
 				if ( $tempUser = UserFactory::update( $user, $userObj ) )
@@ -285,7 +257,7 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 		Util::log( "ERROR failed to save trip, invalid user" );
 }
 else
-	Util::log( "ERROR failed to save trip, invalid device: {$device}" );
+	Util::log( "ERROR failed to save trip, invalid device" );
 
 Util::log( "+++++++++++++ Development: Upload Finished ++++++++++");
 
@@ -294,4 +266,5 @@ $response = new stdClass;
 $response->status = 'error';
 echo json_encode( $response );
 exit;
+
 

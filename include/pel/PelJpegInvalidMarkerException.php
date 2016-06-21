@@ -5,7 +5,7 @@
  * A library with support for reading and
  * writing all Exif headers in JPEG and TIFF images using PHP.
  *
- * Copyright (C) 2004, 2005 Martin Geisler.
+ * Copyright (C) 2004, 2005, 2006, 2007 Martin Geisler.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,44 +25,40 @@
 namespace lsolesen\pel;
 
 /**
- * Standard PEL exception.
+ * Classes representing JPEG data.
  *
  * @author Martin Geisler <mgeisler@users.sourceforge.net>
- * @license http://www.gnu.org/licenses/gpl.html GNU General Public
- *          License (GPL)
+ * @license http://www.gnu.org/licenses/gpl.html GNU General Public License (GPL)
  * @package PEL
  */
 
 /**
- * A printf() capable exception.
+ * Exception thrown when an invalid marker is found.
  *
- * This class is a simple extension of the standard Exception class in
- * PHP, and all the methods defined there retain their original
- * meaning.
+ * This exception is thrown when PEL expects to find a {@link
+ * PelJpegMarker} and instead finds a byte that isn't a known marker.
  *
+ * @author Martin Geisler <mgeisler@users.sourceforge.net>
  * @package PEL
  * @subpackage Exception
  */
-class PelException extends \Exception
+class PelJpegInvalidMarkerException extends \lsolesen\pel\PelException
 {
 
     /**
-     * Construct a new PEL exception.
+     * Construct a new invalid marker exception.
      *
-     * @param string $fmt
-     *            an optional format string can be given. It
-     *            will be used as a format string for vprintf(). The remaining
-     *            arguments will be available for the format string as usual with
-     *            vprintf().
+     * The exception will contain a message describing the error,
+     * including the byte found and the offset of the offending byte.
      *
-     * @param mixed $args,...
-     *            any number of arguments to be used with
-     *            the format string.
+     * @param int $marker
+     *            the byte found.
+     *
+     * @param int $offset
+     *            the offset in the data.
      */
-    public function __construct()
+    public function __construct($marker, $offset)
     {
-        $args = func_get_args();
-        $fmt = array_shift($args);
-        parent::__construct(vsprintf($fmt, $args));
+        parent::__construct('Invalid marker found at offset %d: 0x%2X', $offset, $marker);
     }
 }

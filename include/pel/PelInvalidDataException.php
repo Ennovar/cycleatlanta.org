@@ -24,6 +24,8 @@
  */
 namespace lsolesen\pel;
 
+use lsolesen\pel\PelException;
+
 /**
  * Standard PEL exception.
  *
@@ -34,35 +36,12 @@ namespace lsolesen\pel;
  */
 
 /**
- * A printf() capable exception.
+ * Exception throw if invalid data is found.
  *
- * This class is a simple extension of the standard Exception class in
- * PHP, and all the methods defined there retain their original
- * meaning.
- *
+ * @author Martin Geisler <mgeisler@users.sourceforge.net>
  * @package PEL
  * @subpackage Exception
  */
-class PelException extends \Exception
+class PelInvalidDataException extends PelException
 {
-
-    /**
-     * Construct a new PEL exception.
-     *
-     * @param string $fmt
-     *            an optional format string can be given. It
-     *            will be used as a format string for vprintf(). The remaining
-     *            arguments will be available for the format string as usual with
-     *            vprintf().
-     *
-     * @param mixed $args,...
-     *            any number of arguments to be used with
-     *            the format string.
-     */
-    public function __construct()
-    {
-        $args = func_get_args();
-        $fmt = array_shift($args);
-        parent::__construct(vsprintf($fmt, $args));
-    }
 }

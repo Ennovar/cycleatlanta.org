@@ -5,7 +5,7 @@
  * A library with support for reading and
  * writing all Exif headers in JPEG and TIFF images using PHP.
  *
- * Copyright (C) 2004, 2005 Martin Geisler.
+ * Copyright (C) 2004, 2005, 2006 Martin Geisler.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,13 @@
 namespace lsolesen\pel;
 
 /**
- * Standard PEL exception.
+ * Classes for dealing with Exif entries.
+ *
+ * This file defines two exception classes and the abstract class
+ * {@link PelEntry} which provides the basic methods that all Exif
+ * entries will have. All Exif entries will be represented by
+ * descendants of the {@link PelEntry} class --- the class itself is
+ * abstract and so it cannot be instantiated.
  *
  * @author Martin Geisler <mgeisler@users.sourceforge.net>
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public
@@ -34,35 +40,29 @@ namespace lsolesen\pel;
  */
 
 /**
- * A printf() capable exception.
+ * Exception cast when numbers overflow.
  *
- * This class is a simple extension of the standard Exception class in
- * PHP, and all the methods defined there retain their original
- * meaning.
- *
+ * @author Martin Geisler <mgeisler@users.sourceforge.net>
  * @package PEL
  * @subpackage Exception
  */
-class PelException extends \Exception
+class PelOverflowException extends PelException
 {
 
     /**
-     * Construct a new PEL exception.
+     * Construct a new overflow exception.
      *
-     * @param string $fmt
-     *            an optional format string can be given. It
-     *            will be used as a format string for vprintf(). The remaining
-     *            arguments will be available for the format string as usual with
-     *            vprintf().
+     * @param int $v
+     *            the value that is out of range.
      *
-     * @param mixed $args,...
-     *            any number of arguments to be used with
-     *            the format string.
+     * @param int $min
+     *            the minimum allowed value.
+     *
+     * @param int $max
+     *            the maximum allowed value.
      */
-    public function __construct()
+    public function __construct($v, $min, $max)
     {
-        $args = func_get_args();
-        $fmt = array_shift($args);
-        parent::__construct(vsprintf($fmt, $args));
+        parent::__construct('Value %.0f out of range [%.0f, %.0f]', $v, $min, $max);
     }
 }

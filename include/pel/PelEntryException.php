@@ -5,7 +5,7 @@
  * A library with support for reading and
  * writing all Exif headers in JPEG and TIFF images using PHP.
  *
- * Copyright (C) 2004, 2005 Martin Geisler.
+ * Copyright (C) 2004, 2005, 2006 Martin Geisler.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,14 @@
  */
 namespace lsolesen\pel;
 
-use \lsolesen\pel\PelDataWindow;
-
 /**
- * Class representing content in a JPEG file.
+ * Classes for dealing with Exif entries.
+ *
+ * This file defines two exception classes and the abstract class
+ * {@link PelEntry} which provides the basic methods that all Exif
+ * entries will have. All Exif entries will be represented by
+ * descendants of the {@link PelEntry} class --- the class itself is
+ * abstract and so it cannot be instantiated.
  *
  * @author Martin Geisler <mgeisler@users.sourceforge.net>
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public
@@ -36,43 +40,48 @@ use \lsolesen\pel\PelDataWindow;
  */
 
 /**
- * Class representing content in a JPEG file.
- *
- * A JPEG file consists of a sequence of each of which has an
- * associated {@link PelJpegMarker marker} and some content. This
- * class represents the content, and this basic type is just a simple
- * holder of such content, represented by a {@link PelDataWindow}
- * object. The {@link PelExif} class is an example of more
- * specialized JPEG content.
+ * Exception indicating a problem with an entry.
  *
  * @author Martin Geisler <mgeisler@users.sourceforge.net>
  * @package PEL
+ * @subpackage Exception
  */
-class PelJpegContent
+class PelEntryException extends \lsolesen\pel\PelException
 {
 
-    private $data = null;
+    /**
+     * The IFD type (if known).
+     *
+     * @var int
+     */
+    protected $type;
 
     /**
-     * Make a new piece of JPEG content.
+     * The tag of the entry (if known).
      *
-     * @param PelDataWindow $data
-     *            the content.
+     * @var PelTag
      */
-    public function __construct(PelDataWindow $data)
+    protected $tag;
+
+    /**
+     * Get the IFD type associated with the exception.
+     *
+     * @return int one of {@link PelIfd::IFD0}, {@link PelIfd::IFD1},
+     *         {@link PelIfd::EXIF}, {@link PelIfd::GPS}, or {@link
+     *         PelIfd::INTEROPERABILITY}. If no type is set, null is returned.
+     */
+    public function getIfdType()
     {
-        $this->data = $data;
+        return $this->type;
     }
 
     /**
-     * Return the bytes of the content.
+     * Get the tag associated with the exception.
      *
-     * @return string bytes representing this JPEG content. These bytes
-     *         will match the bytes given to {@link __construct the
-     *         constructor}.
+     * @return PelTag the tag. If no tag is set, null is returned.
      */
-    public function getBytes()
+    public function getTag()
     {
-        return $this->data->getBytes();
+        return $this->tag;
     }
 }
