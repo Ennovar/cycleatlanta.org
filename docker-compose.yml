@@ -12,6 +12,9 @@ services:
     volumes:
       - ./cycleatlanta.org/:/var/www/html/
       - ./include:/var/www/html/include/
+    # link the two containers on the same network
+    links:
+      - db:db
     # make sure the database service gets launched if the website is launched
     depends_on:
       - db
@@ -26,4 +29,4 @@ services:
     # forward ports for remote connection
     ports:
       - 3307:3306
-    env_file: ./.env
+    env_file: .env

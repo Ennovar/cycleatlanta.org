@@ -3,16 +3,17 @@
 -- 01.12.2013
 
 -- Change the user name so that the user has access to connect from remote client
--- GRANT ALL PRIVILEGES ON *.* TO '<CHANGE_TO_YOUR_USERNAME>'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
--- FLUSH PRIVILEGES;
+GRANT ALL PRIVILEGES ON *.* TO 'cyclewichita'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
 
+SET SQL_MODE='ALLOW_INVALID_DATES';
 CREATE TABLE trip (
 	id      INTEGER UNSIGNED AUTO_INCREMENT,
 	user_id INTEGER UNSIGNED,
 	purpose VARCHAR(255),
 	notes VARCHAR(255),
 	start   TIMESTAMP,
-	stop    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	stop    TIMESTAMP,
 	n_coord INTEGER UNSIGNED,
 	PRIMARY KEY ( id ),
 	UNIQUE KEY ( user_id, start )

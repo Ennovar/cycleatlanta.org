@@ -1,8 +1,8 @@
 <?php
-include_once('../../include/CoordFactory.php');
-include_once('../../include/TripFactory.php');
+include_once('../include/CoordFactory.php');
+include_once('../include/TripFactory.php');
 //include_once('UserFactory.php');
-include_once('../../include/Util.php');
+include_once('../include/Util.php');
 ob_start('ob_gzhandler');
 //Util::log( "t: {$_POST['t']} and q: {$_POST['q']}" );
 
