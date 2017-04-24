@@ -1,11 +1,11 @@
 <?php
 
-require_once('Util.php');
-require_once('UserFactory_dev.php');
-require_once('TripFactory_dev.php');
-require_once('CoordFactory_dev.php');
-require_once('NoteFactory_dev.php');
-require_once('Decompress.php');
+require_once('../include/Util.php');
+require_once('../include/UserFactory_dev.php');
+require_once('../include/TripFactory_dev.php');
+require_once('../include/CoordFactory_dev.php');
+require_once('../include/NoteFactory_dev.php');
+require_once('../include/Decompress.php');
 
 define( 'DATE_FORMAT',        'Y-m-d h:i:s' );
 define( 'PROTOCOL_VERSION_1', 1 );
@@ -24,12 +24,12 @@ foreach($_SERVER as $key => $value) {
         continue;
     }
     $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
-    
+
     Util::log ( "{$header}: {$value}" );
     //$headers[$header] = $value;
 }
 
-Util::log ( "++++++++++++++++++++++" );   
+Util::log ( "++++++++++++++++++++++" );
 */
 
 // take protocol from HTTP header if present; otherwise URL query var or POST body
@@ -45,13 +45,13 @@ Util::log ( "protocol version: {$version}");
 
 // older protocol types use a urlencoded form body
 if ( $version == PROTOCOL_VERSION_1 || $version == PROTOCOL_VERSION_2 || $version == null) {
-  $coords   = isset( $_POST['coords'] )  ? $_POST['coords']  : null; 
-  $device   = isset( $_POST['device'] )  ? $_POST['device']  : null; 
-  $notes    = isset( $_POST['notes'] )   ? $_POST['notes']   : null; 
-  $purpose  = isset( $_POST['purpose'] ) ? $_POST['purpose'] : null; 
-  $start    = isset( $_POST['start'] )   ? $_POST['start']   : null; 
-  $userData = isset( $_POST['user'] )    ? $_POST['user']    : null; 
-} 
+  $coords   = isset( $_POST['coords'] )  ? $_POST['coords']  : null;
+  $device   = isset( $_POST['device'] )  ? $_POST['device']  : null;
+  $notes    = isset( $_POST['notes'] )   ? $_POST['notes']   : null;
+  $purpose  = isset( $_POST['purpose'] ) ? $_POST['purpose'] : null;
+  $start    = isset( $_POST['start'] )   ? $_POST['start']   : null;
+  $userData = isset( $_POST['user'] )    ? $_POST['user']    : null;
+}
 
 // new zipped body, still mostly urlencoded form
 elseif ( $version == PROTOCOL_VERSION_3) {
@@ -91,9 +91,9 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 		}
 		if ($userData->app_version == NULL) {
 			$userData->app_version = "1.0 on iOS 7";
-		}  			
+		}
 	}
-	
+
 	// try to lookup user by this device ID
 	$user = null;
 	if ( $user = UserFactory::getUserByDevice( $device ) )
@@ -112,20 +112,20 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 		if ( $version == PROTOCOL_VERSION_4 ) {
 			//only one note sent at a time
 			$noteObj = json_decode( $note );
-			
+
 			// get the first coord's start timestamp if needed
 			if ( !$timeStamp )
 				$timeStamp = $noteObj->r;
-			
+
 			// first check for existing note
 			if ( $note_id = NoteFactory::getNoteByUserStart( $user->id, $timeStamp ) ){
 				// we've already saved a trip for this user with this start time
 				Util::log( "WARNING a note for user {$user->id} at {$timeStamp} has already been saved" );
 				Util::log( "+++++++++++++ Development: Upload Finished ++++++++++");
 				//
-				// add code here to handle updating the note details if implemented 
+				// add code here to handle updating the note details if implemented
 				//
-				
+
 				header("HTTP/1.1 202 Accepted");
 				$response = new stdClass;
 				$response->status = 'success';
@@ -133,8 +133,8 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 				exit;
 			}
 			else {
-				Util::log( "Saving a new note for user {$user->id} at {$timeStamp}" );	
-				// create a new note, 
+				Util::log( "Saving a new note for user {$user->id} at {$timeStamp}" );
+				// create a new note,
 				if ( $addedNote = NoteFactory::insert(	$user->id,
 										$noteObj->r, //recorded timestamp
 										$noteObj->l, //latitude
@@ -150,7 +150,7 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 				{
 					Util::log( "Added note {$addedNote->id} type {$addedNote->note_type}" );
 				} else
-					Util::log( "WARNING failed to add note {$addedNote->id} type {$addedNote->note_type}" );					
+					Util::log( "WARNING failed to add note {$addedNote->id} type {$addedNote->note_type}" );
 			}
 			Util::log( "+++++++++++++ Development: Upload Finished ++++++++++");
 			header("HTTP/1.1 201 Created");
@@ -158,9 +158,9 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 			$response->status = 'success';
 			echo json_encode( $response );
 			exit;
-		} 
+		}
 		// add a trip
-		else { 		
+		else {
 			// check for userData and update if needed
 			if ( $userObj  = new User( $userData ) )
 			{
@@ -168,20 +168,20 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 				if ( $tempUser = UserFactory::update( $user, $userObj ) )
 					$user = $tempUser;
 			}
-	
+
 			$coords  = (array) json_decode( $coords );
 			$n_coord = count( $coords );
 			Util::log( "n_coord: {$n_coord}" );
-	
+
 			// sort incoming coords by recorded timestamp
 			// NOTE: $coords might be a single object if only 1 coord so check is_array
 			if ( is_array( $coords ) )
 				ksort( $coords );
-	
+
 			// get the first coord's start timestamp if needed
 			if ( !$start )
 				$start = key( $coords );
-	
+
 			// first check for an existing trip with this start timestamp
 			if ( $trip = TripFactory::getTripByUserStart( $user->id, $start ) )
 			{
@@ -196,10 +196,10 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 			}
 			else
 				Util::log( "Saving a new trip for user {$user->id} starting at {$start} with {$n_coord} coords.." );
-	
+
 			// init stop to null
 			$stop = null;
-	
+
 			// create a new trip, note unique compound key (user_id, start) required
 			if ( $trip = TripFactory::insert( $user->id, $purpose, $notes, $start ) )
 			{
@@ -208,7 +208,7 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 					{
 					foreach ( $coords as $coord )
 					{ //( $trip_id, $recorded, $latitude, $longitude, $altitude=0, $speed=0, $hAccuracy=0, $vAccuracy=0 )
-						CoordFactory::insert(   $trip->id, 
+						CoordFactory::insert(   $trip->id,
 												$coord->r, //recorded timestamp
 												$coord->l, //latitude
 												$coord->n, //longitude
@@ -217,7 +217,7 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 												$coord->h, //haccuracy
 												$coord->v ); //vaccuracy
 					}
-	
+
 					// get the last coord's recorded => stop timestamp
 					if ( $coord && isset( $coord->r ) )
 						$stop = $coord->r;
@@ -226,16 +226,16 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 				{
 					foreach ( $coords as $coord )
 					{
-						CoordFactory::insert(   $trip->id, 
-												$coord->rec, 
-												$coord->lat, 
+						CoordFactory::insert(   $trip->id,
+												$coord->rec,
+												$coord->lat,
 												$coord->lon,
-												$coord->alt, 
-												$coord->spd, 
-												$coord->hac, 
+												$coord->alt,
+												$coord->spd,
+												$coord->hac,
 												$coord->vac );
 					}
-	
+
 					// get the last coord's recorded => stop timestamp
 					if ( $coord && isset( $coord->rec ) )
 						$stop = $coord->rec;
@@ -244,23 +244,23 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 				{
 					foreach ( $coords as $coord )
 					{
-						CoordFactory::insert(   $trip->id, 
-												$coord->recorded, 
-												$coord->latitude, 
+						CoordFactory::insert(   $trip->id,
+												$coord->recorded,
+												$coord->latitude,
 												$coord->longitude,
-												$coord->altitude, 
-												$coord->speed, 
-												$coord->hAccuracy, 
+												$coord->altitude,
+												$coord->speed,
+												$coord->hAccuracy,
 												$coord->vAccuracy );
 					}
-	
+
 					// get the last coord's recorded => stop timestamp
 					if ( $coord && isset( $coord->recorded ) )
 						$stop = $coord->recorded;
 				}
-	
+
 				Util::log( "stop: {$stop}" );
-	
+
 				// update trip start, stop, n_coord
 				if ( $updatedTrip = TripFactory::update( $trip->id, $stop, $n_coord ) )
 				{
@@ -268,7 +268,7 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 				}
 				else
 					Util::log( "WARNING failed to update trip {$trip->id} stop, n_coord" );
-				
+
 				Util::log( "+++++++++++++ Development: Upload Finished ++++++++++");
 
 				header("HTTP/1.1 201 Created");
@@ -279,7 +279,7 @@ if ( is_string( $device ) && strlen( $device ) === 32 || strlen( $device ) === 3
 			}
 			else
 				Util::log( "ERROR failed to save trip, invalid trip_id" );
-		} 	
+		}
 	}
 	else
 		Util::log( "ERROR failed to save trip, invalid user" );
@@ -294,4 +294,3 @@ $response = new stdClass;
 $response->status = 'error';
 echo json_encode( $response );
 exit;
-

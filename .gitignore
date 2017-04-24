@@ -10,6 +10,7 @@ ehthumbs.db
 Thumbs.db
 *.swp
 *.lock
+.env*
 profile
 
 # Directories and files to skip #

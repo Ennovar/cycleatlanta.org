@@ -1,15 +1,16 @@
 <?php
 /*
  *
- *TEMPLATE FOR Database CLASS. EDIT APPROPRIATELY AND RENAME TO "Database.php" 
+ *TEMPLATE FOR Database CLASS. EDIT APPROPRIATELY AND RENAME TO "Database.php"
  *
  */
- 
+
 require_once( 'Util.php' );
 
 abstract class DatabaseConnection extends mysqli
 {
-	const USER     = 'your_username';
+  // this will reflect your .env file that is configured in docker-compose.yml
+  const USER     = 'your_username';
 	const PASSWORD = 'your_password';
 	const DATABASE = 'your_db_name';
 
@@ -25,13 +26,14 @@ abstract class DatabaseConnection extends mysqli
 	{
 		if ( !($result = parent::query( $query ) ) )
 			Util::log( __METHOD__ . "() ERROR {$this->errno}: {$this->error}: \"{$query}\"" );
-		
+
 		return $result;
 	}
 }
 
-class LocalDatabaseConnection extends DatabaseConnection 
+class LocalDatabaseConnection extends DatabaseConnection
 {
+  // this be the db container in docker-compose.yml
 	const HOST     = 'your_db_server';
 
 	public function __construct()
@@ -40,7 +42,7 @@ class LocalDatabaseConnection extends DatabaseConnection
 	}
 }
 
-class DatabaseConnectionFactory 
+class DatabaseConnectionFactory
 {
 	static protected $connection = null;
 
@@ -74,4 +76,3 @@ class DatabaseConnectionException extends DatabaseException
 		parent::__construct( mysqli_connect_error(), mysqli_connect_errno() );
 	}
 }
-

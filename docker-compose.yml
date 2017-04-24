@@ -1,0 +1,29 @@
+version: '3'
+# declared services
+services:
+  # the website service definition
+  web:
+    # build the Dockerfile located in the project directory
+    build: ./
+    # forward the container port for the server to the local dev port 8080
+    ports:
+      - 8080:80
+    # include the volumes and mount them to the webserver directory
+    volumes:
+      - ./cycleatlanta.org/:/var/www/html/
+      - ./include:/var/www/html/include/
+    # make sure the database service gets launched if the website is launched
+    depends_on:
+      - db
+  # declare the database service
+  db:
+    # you can specify a mysql version by changing image to mysql:<version>
+    image: mysql
+    # add the files in the database directory into the init folder
+    # this will ensure that the sql scripts gets ran when the db inits
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+    # forward ports for remote connection
+    ports:
+      - 3307:3306
+    env_file: ./.env

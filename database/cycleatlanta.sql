@@ -2,13 +2,17 @@
 -- Christopher Le Dantec
 -- 01.12.2013
 
+-- Change the user name so that the user has access to connect from remote client
+-- GRANT ALL PRIVILEGES ON *.* TO '<CHANGE_TO_YOUR_USERNAME>'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
+-- FLUSH PRIVILEGES;
+
 CREATE TABLE trip (
 	id      INTEGER UNSIGNED AUTO_INCREMENT,
 	user_id INTEGER UNSIGNED,
 	purpose VARCHAR(255),
 	notes VARCHAR(255),
 	start   TIMESTAMP,
-	stop    TIMESTAMP,
+	stop    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	n_coord INTEGER UNSIGNED,
 	PRIMARY KEY ( id ),
 	UNIQUE KEY ( user_id, start )
@@ -27,7 +31,7 @@ CREATE TABLE note (
 	vAccuracy DOUBLE,
 	note_type TINYINT,
 	details   VARCHAR(255),
-	image_url VARCHAR(255),	
+	image_url VARCHAR(255),
 	PRIMARY KEY ( id ),
 	UNIQUE KEY ( user_id, recorded )
 ) ENGINE=INNODB;
@@ -129,7 +133,7 @@ INSERT INTO age ( id, text ) VALUES ( 7, "65+" );
 
 INSERT INTO gender ( id, text ) VALUES ( 0, "no data" );
 INSERT INTO gender ( id, text ) VALUES ( 1, "Female" );
-INSERT INTO gender ( id, text ) VALUES ( 2, "Male" ); 
+INSERT INTO gender ( id, text ) VALUES ( 2, "Male" );
 
 INSERT INTO ethnicity ( id, text ) VALUES ( 0, "no data" );
 INSERT INTO ethnicity ( id, text ) VALUES ( 1, "White" );
@@ -165,7 +169,7 @@ INSERT INTO rider_history ( id, text ) VALUES ( 0, "no data" );
 INSERT INTO rider_history ( id, text ) VALUES ( 1, "Since childhood" );
 INSERT INTO rider_history ( id, text ) VALUES ( 2, "Several years" );
 INSERT INTO rider_history ( id, text ) VALUES ( 3, "One year or less" );
-INSERT INTO rider_history ( id, text ) VALUES ( 4, "Just trying it out / just started" );
+INSERT INTO rider_history ( id, text ) VALUES ( 4, "Just trying it out" );
 
 INSERT INTO note_type ( id, text ) VALUES (0, 'Pavement issue');
 INSERT INTO note_type ( id, text ) VALUES (1, 'Traffic signal');
